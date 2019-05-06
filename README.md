@@ -1,5 +1,5 @@
 Mender Demo Artifact
-==============================================
+=============================================
 
 Mender is an open source over-the-air (OTA) software updater for embedded Linux
 devices. Mender comprises a client running at the embedded device, as well as
