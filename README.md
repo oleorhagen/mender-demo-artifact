@@ -15,7 +15,7 @@ and acts as an example of the update capabilities.
 
 ### Onboarding Site
  
-This site is served with some device information from the serving device. The device details are populated in the `entrypoint.sh` in the development setup and a similar file should be executed before server start on the updated device.
+This site displays system information from the device itself. The device details are populated in the `entrypoint.sh` in the development setup and a similar file should be executed before server start on the updated device.
 
 To see the site, go to the subfolder, use:
 
