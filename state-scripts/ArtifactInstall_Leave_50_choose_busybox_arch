@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+case "$(uname -m)" in
+    arm*)
+        cp /var/www/localhost/busybox_armhf /var/www/localhost/busybox
+        ;;
+    x86_64)
+        cp /var/www/localhost/busybox_x86_64 /var/www/localhost/busybox
+        ;;
+    *)
+        echo "No compatible busybox binary for this architecture." 1>&2
+        exit 1
+        ;;
+esac
+
+exit 0

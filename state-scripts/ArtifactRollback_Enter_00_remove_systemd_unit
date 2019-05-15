@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# No 'set -e' here, proceed with everything.
+
+systemctl stop mender-demo-artifact
+systemctl disable mender-demo-artifact
+rm -f /lib/systemd/system/mender-demo-artifact.service
+systemctl daemon-reload
