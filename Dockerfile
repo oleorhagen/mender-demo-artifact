@@ -1,6 +1,6 @@
 FROM debian:9
 RUN apt update
-RUN apt install -y build-essential crossbuild-essential-armhf curl unzip
+RUN apt install -y build-essential gcc-arm-linux-gnueabi curl unzip
 
 RUN mkdir /output
 
@@ -17,8 +17,8 @@ RUN cp busybox /tmp/busybox_x86_64
 
 # ARM
 RUN make distclean
-RUN env CROSS_COMPILE=arm-linux-gnueabihf- make -j$(nproc) defconfig
-RUN env CROSS_COMPILE=arm-linux-gnueabihf- make -j$(nproc)
+RUN env CROSS_COMPILE=arm-linux-gnueabi- LDFLAGS=-static make -j$(nproc) defconfig
+RUN env CROSS_COMPILE=arm-linux-gnueabi- LDFLAGS=-static make -j$(nproc)
 RUN cp busybox /tmp/busybox_armhf
 
 ARG MENDER_ARTIFACT_VERSION=none
