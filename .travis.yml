@@ -49,7 +49,7 @@ jobs:
         # Build
         - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
         # Extract artifact
-        - docker run --rm -v $PWD/output:/output mender-demo-artifact
+        - mkdir output && docker run --rm -v $PWD/output:/output mender-demo-artifact
 
         # Build test image
         - ( cd tests/mender_test_containers/docker/ && ./docker-build-raspbian )

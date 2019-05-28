@@ -2,8 +2,6 @@ FROM debian:9
 RUN apt update
 RUN apt install -y build-essential gcc-arm-linux-gnueabi curl unzip
 
-RUN mkdir /output
-
 WORKDIR /tmp
 RUN curl -f -O https://busybox.net/downloads/busybox-1.30.1.tar.bz2
 RUN tar xjf busybox-1.30.1.tar.bz2
@@ -76,7 +74,8 @@ RUN state-scripts/ArtifactInstall_Leave_50_choose_busybox_arch
 
 VOLUME /output
 CMD echo "Copying artifact to /output." \
-    && cp /tmp/mender-demo-artifact.mender /output
+    && cp /tmp/mender-demo-artifact.mender /output \
+    && chown --reference=/output /output/mender-demo-artifact.mender
 
 EXPOSE 80
 
