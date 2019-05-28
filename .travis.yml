@@ -11,7 +11,7 @@ env:
         - MENDER_VERSION=2.0.0
         - MENDER_ARTIFACT_VERSION=3.0.0
         - INTEGRATION_VERSION=2.0.0
-        - ARTIFACT_NAME=mender-demo-artifact
+        - ARTIFACT_NAME=mender-demo-artifact-$INTEGRATION_VERSION
 
 before_install:
     - sudo apt update && sudo apt install -y python3-pip
