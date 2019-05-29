@@ -1,7 +1,10 @@
 #!/bin/sh
 set -e
 
-PROC=$(cat /proc/cpuinfo | grep "model name" | sed -n -e 's/^model name.*: //p' | head -1)
+PROC=$(cat /proc/cpuinfo | grep "model name" | sed -n -e 's/^model name.*: //p' | head -n1)
+DEVICE_TYPE=$(sed -e 's/^device_type=//' /var/lib/mender/device_type 2>/dev/null || uname -m)
+MENDER_VERSION=$(mender -version 2>/dev/null | head -n1)
+MENDER_VERSION=${MENDER_VERSION:-N/A}
 cat >/var/www/localhost/htdocs/device-info.js <<EOF
   mender_server = {
     "Web server": "$(hostname)",
@@ -12,13 +15,12 @@ cat >/var/www/localhost/htdocs/device-info.js <<EOF
     "mac": "$(cat /sys/class/net/eth0/address)"
   }
   mender_inventory = {
-    "device_type": "intam",
-    "mender_client_version": "2.0.0-beta",
+    "device_type": "$DEVICE_TYPE",
+    "mender_client_version": "$MENDER_VERSION",
     "os": "$(cat /proc/version)",
     "cpu": "$PROC",
     "kernel": "$(uname -r)"
   }
 EOF
-tail -F /var/log/lighttpd/access.log 2>/dev/null &
-tail -F /var/log/lighttpd/error.log 2>/dev/null 1>&2 &
-lighttpd -D -f /etc/lighttpd/lighttpd.conf
+cd /var/www/localhost/htdocs
+../busybox httpd -f

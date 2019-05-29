@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+cat > /lib/systemd/system/mender-demo-artifact.service <<EOF
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/var/www/localhost/entrypoint.sh
+EOF
+
+systemctl daemon-reload
+systemctl restart mender-demo-artifact
+systemctl enable mender-demo-artifact
