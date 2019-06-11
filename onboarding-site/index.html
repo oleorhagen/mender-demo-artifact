@@ -2,8 +2,12 @@
 <html dir="ltr" lang="en">
   <head>
     <meta charset="utf-8" />
-    <link id="favicon" rel="icon" type="image/x-icon" href="data:image/x-icon;wolQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH8Ozw79hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccOJZTwAAAFKSURBVHjDmsKswpMxTsODQBBFw6MoPcOuw5LCmhvDuAYxQsO0UCLCgcKISypzwoPDhCfCsMKoUhIrRUpSw5HCoSQlFcKuaWIkWsKIacKgwoTDv8Kjwr9owrRywoEEwpZGwrPDuzzDs3dmPcOudMO+w6s5w587woxgwqFlw4HDqWUIwotaYmPCt8OuChRwG8OYFsOrwqHCksOpwrfDpFgXLhFGw7YIwr/DvBHDgHNlDsK4w7DCvH0/woLCuSoTwogkTsKgMcOBwrFKwrTCrFZ7fjvCtRM4w6BGSQxcHj3CvFzDg09hwovDvsObZ0pGcVjCpcKcwpPDmcO7fcOdw7MqwqBICSvDusKvH8K3Z3dPFHnDpl7DiRQaaF3Dr8OuSsKXwrMxw6XDscOUNcOsw4YrN1V1woU5dMOfwrVge8KLUBpFVjZbbGAQw4ViJ2DCg8OXwp7Ct8OvS8ODKsKIwq4CMxwJw4sCwqzCvMKBCRnDqDMJNMKBwoZmwqxvw4zCvsOSwq/DuWQBdsKse2BwDjYGwovDtTXDiMKmYGnDlwzCiMOrK8OTOjNDM2phQwrCtg1Sw7NLwrbDm8O3w4wnw4oUwpDCi8OlwqYqw4siwrESLcOUf8O+wovCvwUYAMOjwoJ3w5zDu8Kww6PDqgAAAABJRU5Ewq5CYMKC">
-    <title>localhost</title>
+    <link
+      id="favicon"
+      rel="icon"
+      type="image/x-icon"
+      href="data:image/x-icon;wolQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH8Ozw79hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccOJZTwAAAFKSURBVHjDmsKswpMxTsODQBBFw6MoPcOuw5LCmhvDuAYxQsO0UCLCgcKISypzwoPDhCfCsMKoUhIrRUpSw5HCoSQlFcKuaWIkWsKIacKgwoTDv8Kjwr9owrRywoEEwpZGwrPDuzzDs3dmPcOudMO+w6s5w587woxgwqFlw4HDqWUIwotaYmPCt8OuChRwG8OYFsOrwqHCksOpwrfDpFgXLhFGw7YIwr/DvBHDgHNlDsK4w7DCvH0/woLCuSoTwogkTsKgMcOBwrFKwrTCrFZ7fjvCtRM4w6BGSQxcHj3CvFzDg09hwovDvsObZ0pGcVjCpcKcwpPDmcO7fcOdw7MqwqBICSvDusKvH8K3Z3dPFHnDpl7DiRQaaF3Dr8OuSsKXwrMxw6XDscOUNcOsw4YrN1V1woU5dMOfwrVge8KLUBpFVjZbbGAQw4ViJ2DCg8OXwp7Ct8OvS8ODKsKIwq4CMxwJw4sCwqzCvMKBCRnDqDMJNMKBwoZmwqxvw4zCvsOSwq/DuWQBdsKse2BwDjYGwovDtTXDiMKmYGnDlwzCiMOrK8OTOjNDM2phQwrCtg1Sw7NLwrbDm8O3w4wnw4oUwpDCi8OlwqYqw4siwrESLcOUf8O+wovCvwUYAMOjwoJ3w5zDu8Kww6PDqgAAAABJRU5Ewq5CYMKC"
+    />
     <style>
       body {
         max-width: 1600px;
@@ -161,6 +165,7 @@
         text-align: center;
         vertical-align: middle;
         border-radius: 4px;
+        cursor: pointer;
         display: inline-block;
       }
     </style>
@@ -210,16 +215,16 @@
         </p>
         <p>Return to the Mender GUI to follow the instructions.</p>
       </div>
-      <a class="mender-button mender-green" href="https://hosted.mender.io/ui/#/releases" target="_blank">Back to the Mender GUI</a>
+      <a class="mender-button mender-green">Back to the Mender GUI</a>
     </div>
     <script src="device-info.js" type="application/javascript"></script>
     <script>
       const mapToAttributeContainer = (key, value, className = '') => {
         const item = document.createElement('div');
-        item.className= className + ' attribute container';
+        item.className = className + ' attribute container';
         item.innerHTML = '<div>' + key + '</div><div>' + value + '</div>';
         return item;
-      }
+      };
       let server = document.querySelector('#server-details');
       Object.entries(mender_server).map(([name, value]) => server.appendChild(mapToAttributeContainer(name, value)));
 
@@ -228,7 +233,14 @@
 
       let inventory = document.querySelector('#device-inventory');
       Object.entries(mender_inventory).map(([name, value]) => inventory.appendChild(mapToAttributeContainer(name, value, 'inventory-item')));
-      
+
+      const backLink = document.querySelector('#next-steps a');
+      backLink.addEventListener('click', evt => {
+        evt.preventDefault();
+        const searchParams = new URLSearchParams(window.location.search);
+        const source = searchParams.has('source') ? decodeURIComponent(searchParams.get('source')) : 'https://hosted.mender.io/ui/#/releases';
+        window.open(source);
+      });
     </script>
   </body>
 </html>
