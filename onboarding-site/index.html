@@ -237,8 +237,9 @@
       const backLink = document.querySelector('#next-steps a');
       backLink.addEventListener('click', evt => {
         evt.preventDefault();
-        const source = decodeURIComponent(window.location.search.substring(window.location.search.indexOf('?') + 1));
-        window.open(source ? source : 'https://hosted.mender.io/ui/#/releases');
+        const searchParams = new URLSearchParams(window.location.search);
+        const source = searchParams.has('source') ? decodeURIComponent(searchParams.get('source')) : 'https://hosted.mender.io/ui/#/releases';
+        window.open(source);
       });
     </script>
   </body>
