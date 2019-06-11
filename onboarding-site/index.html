@@ -221,10 +221,10 @@
     <script>
       const mapToAttributeContainer = (key, value, className = '') => {
         const item = document.createElement('div');
-        item.className= className + ' attribute container';
+        item.className = className + ' attribute container';
         item.innerHTML = '<div>' + key + '</div><div>' + value + '</div>';
         return item;
-      }
+      };
       let server = document.querySelector('#server-details');
       Object.entries(mender_server).map(([name, value]) => server.appendChild(mapToAttributeContainer(name, value)));
 
@@ -233,7 +233,7 @@
 
       let inventory = document.querySelector('#device-inventory');
       Object.entries(mender_inventory).map(([name, value]) => inventory.appendChild(mapToAttributeContainer(name, value, 'inventory-item')));
-      
+
       const backLink = document.querySelector('#next-steps a');
       backLink.addEventListener('click', evt => {
         evt.preventDefault();
