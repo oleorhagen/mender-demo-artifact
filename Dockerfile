@@ -21,7 +21,7 @@ RUN cp busybox /tmp/busybox_armhf
 
 ARG MENDER_ARTIFACT_VERSION=none
 RUN if [ "$MENDER_ARTIFACT_VERSION" = none ]; then echo "MENDER_ARTIFACT_VERSION must be set!" 1>&2; exit 1; fi
-RUN curl -f -o /usr/bin/mender-artifact https://d1b0l86ne08fsf.cloudfront.net/mender-artifact/$MENDER_ARTIFACT_VERSION/mender-artifact
+RUN curl -f -o /usr/bin/mender-artifact https://d1b0l86ne08fsf.cloudfront.net/mender-artifact/$MENDER_ARTIFACT_VERSION/linux/mender-artifact
 RUN chmod ugo+x /usr/bin/mender-artifact
 
 ARG MENDER_VERSION=none

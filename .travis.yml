@@ -8,10 +8,11 @@ env:
         # - AWS_S3_ACCESS_KEY_ID=''
         # - AWS_S3_SECRET_ACCESS_KEY=''
 
-        - MENDER_VERSION=2.0.0
-        - MENDER_ARTIFACT_VERSION=3.0.0
-        - INTEGRATION_VERSION=2.0.0
+        - MENDER_VERSION=2.1.0b1-build3
+        - MENDER_ARTIFACT_VERSION=3.1.0b1-build3
+        - INTEGRATION_VERSION=2.1.0b1-build3
         - ARTIFACT_NAME=mender-demo-artifact-$INTEGRATION_VERSION
+        - MENDER_DEB_VERSION=2.0.0
 
 before_install:
     - sudo apt update && sudo apt install -y python3-pip
@@ -55,7 +56,7 @@ jobs:
         - ( cd tests/mender_test_containers/docker/ && ./docker-build-raspbian )
 
         # Tests
-        - ( cd tests && python3 -m pytest -v --mender-version $MENDER_VERSION )
+        - ( cd tests && python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION )
 
         # Make a versioned copy too.
         - ( cd output
