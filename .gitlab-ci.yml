@@ -18,6 +18,7 @@ stages:
 
 test:build_test:
   stage: test_prep
+  image: buildpack-deps:scm
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
@@ -27,7 +28,11 @@ test:build_test:
     - docker:dind
   script:
     - cd tests/mender_test_containers/docker/
-    - apk --no-cache add sudo curl
+    - apt-get update && apt-get install -yyq sudo unzip
+    - curl -fsSL https://get.docker.com -o get-docker.sh
+    - ls -al
+    - chmod +x get-docker.sh
+    - ./get-docker.sh
     - ./docker-build-raspbian
     - docker save mender-test-raspbian > $CI_PROJECT_DIR/mender-test-raspbian.tar
   artifacts:
