@@ -1,0 +1,81 @@
+image: docker:git
+
+variables:
+  REPO_NAME: github.com/mendersoftware/mender-demo-artifact
+  GITHUB_RELEASE_BINARY: mender-demo-artifact
+  GITHUB_RELEASE_DEPLOY_REPO: mendersoftware/mender-demo-artifact
+  MENDER_VERSION: 2.1.0b1-build3
+  MENDER_ARTIFACT_VERSION: 3.1.0b1-build3
+  INTEGRATION_VERSION: 2.1.0b1-build3
+  ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
+  MENDER_DEB_VERSION: 2.0.0
+
+stages:
+  - test_prep
+  - test
+  - build
+  - publish
+
+test:build_test:
+  stage: test_prep
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  services:
+    - docker:dind
+  script:
+    - cd tests/mender_test_containers/docker/
+    - apk --no-cache add sudo curl
+    - ./docker-build-raspbian
+    - docker save mender-test-raspbian > $CI_PROJECT_DIR/mender-test-raspbian.tar
+  artifacts:
+    expire_in: 30min
+    paths:
+      - mender-test-raspbian.tar
+
+test:format:
+  stage: test
+  script:
+    - git clone git://github.com/mendersoftware/mendertesting
+    - mendertesting/check_commits.sh
+
+test:unit:
+  stage: test
+  services:
+    - docker:dind
+  dependencies:
+    - test:build_test
+  script:
+    - docker load -i mender-test-raspbian.tar
+    - apk add python3 gcc make openssl-dev libffi-dev libc-dev python3-dev
+    - pip3 install --upgrade setuptools
+    - cd tests
+    - pip3 install --upgrade -r requirements.txt
+    - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
+
+build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
+    # Extract artifact
+    - mkdir output
+    - docker run --rm -v $PWD/output:/output mender-demo-artifact
+  artifacts:
+    paths:
+      - mender-demo-artifact.mender
+
+publish:s3:
+  stage: publish
+  only:
+    - master
+  dependencies:
+    - build
+  script:
+    - echo "publish mender-demo-artifact to s3 here"
+    - mkdir $INTEGRATION_VERSION
+    - cp mender-demo-artifact.mender $INTEGRATION_VERSION/mender-demo-artifact.mender
+    # make sure to push both mender-demo-artifact and the integration version subfolder to publish a versioned copy as well
