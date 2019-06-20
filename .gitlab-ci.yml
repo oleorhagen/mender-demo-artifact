@@ -39,6 +39,8 @@ test:build_test:
     expire_in: 30min
     paths:
       - mender-test-raspbian.tar
+  tags:
+    - mender-qa-slave
 
 test:format:
   stage: test
