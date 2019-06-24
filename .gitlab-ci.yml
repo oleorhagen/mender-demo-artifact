@@ -32,7 +32,7 @@ test:build_test_prep:
     - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
     - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
   artifacts:
-    expire_in: 30min
+    expire_in: 2w
     paths:
       - docker-files-raspbian.tar
   tags:
@@ -50,7 +50,7 @@ test:build_test_image:
     - docker build --build-arg raspbian_version=${RASPBIAN_VERSION} -t mender-test-raspbian docker-files-raspbian
     - docker save mender-test-raspbian > $CI_PROJECT_DIR/mender-test-raspbian.tar
   artifacts:
-    expire_in: 30min
+    expire_in: 2w
     paths:
       - mender-test-raspbian.tar
 
@@ -96,7 +96,7 @@ build:
 publish:s3:
   stage: publish
   only:
-    - master
+    - tags
   dependencies:
     - build
   script:
