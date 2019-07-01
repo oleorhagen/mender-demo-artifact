@@ -24,4 +24,4 @@ cat >/var/www/localhost/htdocs/device-info.js <<EOF
   }
 EOF
 cd /var/www/localhost/htdocs
-../busybox httpd -f
+../busybox httpd -f -p 85

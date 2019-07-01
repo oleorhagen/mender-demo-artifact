@@ -8,7 +8,7 @@ env:
         # - AWS_S3_ACCESS_KEY_ID=''
         # - AWS_S3_SECRET_ACCESS_KEY=''
 
-        - MENDER_VERSION=2.0.0
+        - MENDER_VERSION=master
         - MENDER_ARTIFACT_VERSION=3.0.0
         - INTEGRATION_VERSION=2.0.0
         - ARTIFACT_NAME=mender-demo-artifact-$INTEGRATION_VERSION

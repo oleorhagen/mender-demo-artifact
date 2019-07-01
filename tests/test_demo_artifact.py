@@ -27,7 +27,7 @@ class TestPackageMenderClientBasicUsage():
         attempts = 10
         while True:
             try:
-                with PortForward(setup_tester_ssh_connection, setup_test_container.key_filename, 8880, 80):
+                with PortForward(setup_tester_ssh_connection, setup_test_container.key_filename, 8880, 85):
                     response = requests.get("http://localhost:8880/", timeout=10)
                     assert "Congratulations" in response.text
                     break
