@@ -77,4 +77,4 @@ deploy:
   acl: public_read
   local_dir: output
   on:
-    tags: true
+    branch: master
