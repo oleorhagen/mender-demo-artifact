@@ -1,0 +1,106 @@
+image: docker:git
+
+variables:
+  REPO_NAME: github.com/mendersoftware/mender-demo-artifact
+  GITHUB_RELEASE_BINARY: mender-demo-artifact
+  GITHUB_RELEASE_DEPLOY_REPO: mendersoftware/mender-demo-artifact
+  MENDER_VERSION: '2.0.0'
+  MENDER_ARTIFACT_VERSION: '3.0.0'
+  INTEGRATION_VERSION: '2.0.0'
+  ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
+  MENDER_DEB_VERSION: '2.0.0'
+  RASPBIAN_VERSION: '2019-04-08'
+
+stages:
+  - test_pre_prep
+  - test_prep
+  - test
+  - build
+  - publish
+
+test:build_test_prep:
+  stage: test_pre_prep
+  image: buildpack-deps:scm
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  script:
+    - cd tests/mender_test_containers/docker/docker-files-raspbian
+    - apt-get update && apt-get install -yyq sudo unzip
+    - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
+    - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
+  artifacts:
+    expire_in: 2w
+    paths:
+      - docker-files-raspbian.tar
+  tags:
+    - mender-qa-slave
+
+test:build_test_image:
+  stage: test_prep
+  image: docker
+  dependencies:
+    - test:build_test_prep
+  services:
+    - docker:dind
+  script:
+    - tar -xvf docker-files-raspbian.tar
+    - docker build --build-arg raspbian_version=${RASPBIAN_VERSION} -t mender-test-raspbian docker-files-raspbian
+    - docker save mender-test-raspbian > $CI_PROJECT_DIR/mender-test-raspbian.tar
+  artifacts:
+    expire_in: 2w
+    paths:
+      - mender-test-raspbian.tar
+
+test:format:
+  stage: test
+  script:
+    - apk add --no-cache bash
+    - git clone git://github.com/mendersoftware/mendertesting
+    - mendertesting/check_commits.sh
+
+test:unit:
+  stage: test
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  services:
+    - docker:dind
+  dependencies:
+    - test:build_test_image
+  script:
+    - docker load -i mender-test-raspbian.tar
+    - apk add python3 gcc make openssl-dev libffi-dev libc-dev python3-dev
+    - pip3 install --upgrade setuptools
+    - cd tests
+    - pip3 install --upgrade -r requirements.txt
+    - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
+
+build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
+    # Extract artifact
+    - mkdir output
+    - docker run --rm -v $PWD/output:/output mender-demo-artifact
+  artifacts:
+    paths:
+      - mender-demo-artifact.mender
+
+publish:s3:
+  stage: publish
+  only:
+    - tags
+  dependencies:
+    - build
+  script:
+    - echo "publish mender-demo-artifact to s3 here"
+    - mkdir $INTEGRATION_VERSION
+    - cp mender-demo-artifact.mender $INTEGRATION_VERSION/mender-demo-artifact.mender
+    # make sure to push both mender-demo-artifact and the integration version subfolder to publish a versioned copy as well
