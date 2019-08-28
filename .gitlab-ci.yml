@@ -14,8 +14,8 @@ variables:
 stages:
   - test_pre_prep
   - test_prep
-  - test
   - build
+  - test
   - publish
 
 test:build_test_prep:
@@ -54,6 +54,19 @@ test:build_test_image:
     paths:
       - mender-test-raspbian.tar
 
+build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
+    # Extract artifact
+    - mkdir output
+    - docker run --rm -v $PWD/output:/output mender-demo-artifact
+  artifacts:
+    paths:
+      - output/mender-demo-artifact.mender
+
 test:format:
   stage: test
   before_script:
@@ -83,6 +96,7 @@ test:unit:
     - docker:dind
   dependencies:
     - test:build_test_image
+    - build
   script:
     - docker load -i mender-test-raspbian.tar
     - apk add python3 gcc make openssl-dev libffi-dev libc-dev python3-dev
@@ -90,19 +104,6 @@ test:unit:
     - cd tests
     - pip3 install --upgrade -r requirements.txt
     - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
-
-build:
-  stage: build
-  services:
-    - docker:dind
-  script:
-    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
-    # Extract artifact
-    - mkdir output
-    - docker run --rm -v $PWD/output:/output mender-demo-artifact
-  artifacts:
-    paths:
-      - mender-demo-artifact.mender
 
 publish:s3:
   stage: publish
