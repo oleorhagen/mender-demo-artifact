@@ -87,19 +87,25 @@ test:format:
 
 test:unit:
   stage: test
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-  services:
-    - docker:dind
+  image: docker:18-dind
+  tags:
+    - mender-qa-slave
   dependencies:
     - test:build_test_image
     - build
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - /usr/local/bin/dockerd-entrypoint.sh &
+    - sleep 10
+    - export DOCKER_HOST="unix:///var/run/docker.sock"
+    - docker version
+    - apk add git
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
   script:
     - docker load -i mender-test-raspbian.tar
-    - apk add python3 gcc make openssl-dev libffi-dev libc-dev python3-dev
+    - apk add python3 bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
     - pip3 install --upgrade setuptools
     - cd tests
     - pip3 install --upgrade -r requirements.txt
