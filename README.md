@@ -12,18 +12,20 @@ and acts as an example of the update capabilities.
 
 ## Getting started
 
+Build with:
+
+```
+docker build --build-arg MENDER_VERSION=none --build-arg MENDER_ARTIFACT_VERSION=none -t mender-demo-artifact .
+```
+
+Replace `none` with the relevant versions, and follow the instructions at the end of the build.
+
 
 ### Onboarding Site
  
 This site displays system information from the device itself. The device details are populated in the `entrypoint.sh` in the development setup and a similar file should be executed before server start on the updated device.
 
-To see the site, go to the subfolder, use:
-
-```
-docker-compose up
-```
-
-and visit http://localhost:8080. The "Web server" in the top right reflects the container id (instead of a proper server name).
+To see the site, install on a device and visit http://localhost:85. The "Web server" in the top right reflects the container id (instead of a proper server name).
 
 ## Contributing
 
