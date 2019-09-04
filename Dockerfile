@@ -81,9 +81,8 @@ EXPOSE 80
 
 RUN ( \
     echo "To get the demo artifact, run:"; \
-    echo "  docker run --rm -v <OUTPUT_FOLDER>:/output <DOCKER_IMAGE>"; \
-    echo "OUTPUT_FOLDER must be an absolute path"; \
+    echo '  docker run --rm -v $PWD/output:/output mender-demo-artifact'; \
     echo; \
     echo "To run the onboarding-site locally, run:"; \
-    echo "  docker run --rm -t -p 8080:80 <DOCKER_IMAGE> /var/www/localhost/entrypoint.sh"; \
+    echo "  docker run --rm -t -p 8080:80 mender-demo-artifact /var/www/localhost/entrypoint.sh"; \
     ) 1>&2
