@@ -4,7 +4,7 @@ variables:
   REPO_NAME: github.com/mendersoftware/mender-demo-artifact
   GITHUB_RELEASE_BINARY: mender-demo-artifact
   GITHUB_RELEASE_DEPLOY_REPO: mendersoftware/mender-demo-artifact
-  MENDER_VERSION: '2.0.0'
+  MENDER_VERSION: 'master'
   MENDER_ARTIFACT_VERSION: '3.0.0'
   INTEGRATION_VERSION: '2.0.0'
   ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
@@ -14,8 +14,8 @@ variables:
 stages:
   - test_pre_prep
   - test_prep
-  - test
   - build
+  - test
   - publish
 
 test:build_test_prep:
@@ -54,32 +54,6 @@ test:build_test_image:
     paths:
       - mender-test-raspbian.tar
 
-test:format:
-  stage: test
-  script:
-    - apk add --no-cache bash
-    - git clone git://github.com/mendersoftware/mendertesting
-    - mendertesting/check_commits.sh
-
-test:unit:
-  stage: test
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-  services:
-    - docker:dind
-  dependencies:
-    - test:build_test_image
-  script:
-    - docker load -i mender-test-raspbian.tar
-    - apk add python3 gcc make openssl-dev libffi-dev libc-dev python3-dev
-    - pip3 install --upgrade setuptools
-    - cd tests
-    - pip3 install --upgrade -r requirements.txt
-    - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
-
 build:
   stage: build
   services:
@@ -91,7 +65,51 @@ build:
     - docker run --rm -v $PWD/output:/output mender-demo-artifact
   artifacts:
     paths:
-      - mender-demo-artifact.mender
+      - output/mender-demo-artifact.mender
+
+test:format:
+  stage: test
+  before_script:
+    - apk add --no-cache bash
+    # Rename the branch we're on, so that it's not in the way for the
+    # subsequent fetch. It's ok if this fails, it just means we're not on any
+    # branch.
+    - git branch -m temp-branch || true
+    # Git trick: Fetch directly into our local branches instead of remote
+    # branches.
+    - git fetch origin 'refs/heads/*:refs/heads/*'
+    # Get last remaining tags, if any.
+    - git fetch --tags origin
+    - git clone http://github.com/mendersoftware/mendertesting
+  script:
+    # Check commit compliance.
+    - mendertesting/check_commits.sh
+
+test:unit:
+  stage: test
+  image: docker:18-dind
+  tags:
+    - mender-qa-slave
+  dependencies:
+    - test:build_test_image
+    - build
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - /usr/local/bin/dockerd-entrypoint.sh &
+    - sleep 10
+    - export DOCKER_HOST="unix:///var/run/docker.sock"
+    - docker version
+    - apk add git
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  script:
+    - docker load -i mender-test-raspbian.tar
+    - apk add python3 bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
+    - pip3 install --upgrade setuptools
+    - cd tests
+    - pip3 install --upgrade -r requirements.txt
+    - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
 
 publish:s3:
   stage: publish
