@@ -9,10 +9,10 @@ env:
         # - AWS_S3_SECRET_ACCESS_KEY=''
 
         - MENDER_VERSION=master
-        - MENDER_ARTIFACT_VERSION=3.0.0
-        - INTEGRATION_VERSION=2.0.0
+        - MENDER_ARTIFACT_VERSION=3.1.0
+        - INTEGRATION_VERSION=2.1.0
         - ARTIFACT_NAME=mender-demo-artifact-$INTEGRATION_VERSION
-        - MENDER_DEB_VERSION=2.0.0
+        - MENDER_DEB_VERSION=2.1.0
 
 before_install:
     - sudo apt update && sudo apt install -y python3-pip
