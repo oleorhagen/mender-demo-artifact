@@ -12,60 +12,22 @@ variables:
   RASPBIAN_VERSION: '2019-04-08'
 
 stages:
-  - test_pre_prep
-  - test_prep
   - build
   - test
   - publish
 
-test:build_test_prep:
-  stage: test_pre_prep
-  image: buildpack-deps:scm
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-  script:
-    - cd tests/mender_test_containers/docker/docker-files-raspbian
-    - apt-get update && apt-get install -yyq sudo unzip
-    - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
-    - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
-  artifacts:
-    expire_in: 2w
-    paths:
-      - docker-files-raspbian.tar
-  tags:
-    - mender-qa-slave
-
-test:build_test_image:
-  stage: test_prep
-  image: docker
-  dependencies:
-    - test:build_test_prep
-  services:
-    - docker:dind
-  script:
-    - tar -xvf docker-files-raspbian.tar
-    - docker build --build-arg raspbian_version=${RASPBIAN_VERSION} -t mender-test-raspbian docker-files-raspbian
-    - docker save mender-test-raspbian > $CI_PROJECT_DIR/mender-test-raspbian.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - mender-test-raspbian.tar
-
-build:
-  stage: build
-  services:
-    - docker:dind
-  script:
-    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
-    # Extract artifact
-    - mkdir output
-    - docker run --rm -v $PWD/output:/output mender-demo-artifact
-  artifacts:
-    paths:
-      - output/mender-demo-artifact.mender
+build:	
+  stage: build	
+  services:	
+    - docker:dind	
+  script:	
+    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .	
+    # Extract artifact	
+    - mkdir output	
+    - docker run --rm -v $PWD/output:/output mender-demo-artifact	
+  artifacts:	
+    paths:	
+      - output/mender-demo-artifact.mender	
 
 test:format:
   stage: test
@@ -91,7 +53,6 @@ test:unit:
   tags:
     - mender-qa-slave
   dependencies:
-    - test:build_test_image
     - build
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
@@ -104,9 +65,7 @@ test:unit:
     - git submodule sync --recursive
     - git submodule update --init --recursive
   script:
-    - docker load -i mender-test-raspbian.tar
     - apk add python3 bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
-    - pip3 install --upgrade setuptools
     - cd tests
     - pip3 install --upgrade -r requirements.txt
     - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
