@@ -47,7 +47,7 @@ test:format:
     # Check commit compliance.
     - mendertesting/check_commits.sh
 
-test:unit:
+test:acceptance:
   stage: test
   image: docker:18-dind
   tags:
