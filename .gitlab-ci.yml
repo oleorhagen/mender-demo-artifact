@@ -10,6 +10,7 @@ variables:
   ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
   MENDER_DEB_VERSION: '2.1.1'
   RASPBIAN_VERSION: '2019-04-08'
+  S3_BUCKET_NAME: "mender-demo-artifacts"
 
 stages:
   - build
@@ -47,7 +48,7 @@ test:format:
     # Check commit compliance.
     - mendertesting/check_commits.sh
 
-test:unit:
+test:acceptance:
   stage: test
   image: docker:18-dind
   tags:
@@ -72,12 +73,20 @@ test:unit:
 
 publish:s3:
   stage: publish
-  only:
-    - tags
+  image: debian:buster
   dependencies:
     - build
+  before_script:
+    - apt update && apt install -yyq awscli
   script:
-    - echo "publish mender-demo-artifact to s3 here"
-    - mkdir $INTEGRATION_VERSION
-    - cp mender-demo-artifact.mender $INTEGRATION_VERSION/mender-demo-artifact.mender
-    # make sure to push both mender-demo-artifact and the integration version subfolder to publish a versioned copy as well
+    - echo "Publishing ${CI_COMMIT_REF_NAME} version to S3"
+    - aws s3 cp output/mender-demo-artifact.mender
+        s3://$S3_BUCKET_NAME/mender-demo-artifact.mender
+    - aws s3api put-object-acl --acl public-read --bucket $S3_BUCKET_NAME
+        --key mender-demo-artifact.mender
+    - aws s3 cp output/mender-demo-artifact.mender
+        s3://$S3_BUCKET_NAME/$INTEGRATION_VERSION/mender-demo-artifact.mender
+    - aws s3api put-object-acl --acl public-read --bucket $S3_BUCKET_NAME
+        --key $INTEGRATION_VERSION/mender-demo-artifact.mender
+  only:
+    - master
