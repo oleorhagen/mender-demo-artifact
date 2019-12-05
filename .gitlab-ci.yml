@@ -79,7 +79,7 @@ publish:s3:
   before_script:
     - apt update && apt install -yyq awscli
   script:
-    - echo "Publishing ${CI_COMMIT_REF_NAME} version to S3"
+    - echo "Publishing ${INTEGRATION_VERSION} version to S3"
     - aws s3 cp output/mender-demo-artifact.mender
         s3://$S3_BUCKET_NAME/mender-demo-artifact.mender
     - aws s3api put-object-acl --acl public-read --bucket $S3_BUCKET_NAME
