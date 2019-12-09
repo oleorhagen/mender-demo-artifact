@@ -1,5 +1,5 @@
-pytest>=4.0
-fabric>=2.0
-requests
-paramiko
-setuptools
+pytest==5.2
+fabric==2.5
+requests==2.22
+paramiko==2.6
+setuptools==41.4
