@@ -7,6 +7,7 @@ cat > /lib/systemd/system/mender-demo-artifact.service <<EOF
 WantedBy=multi-user.target
 
 [Service]
+Type=notify
 ExecStart=/var/www/localhost/entrypoint.sh
 EOF
 

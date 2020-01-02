@@ -24,4 +24,11 @@ cat >/var/www/localhost/htdocs/device-info.js <<EOF
   }
 EOF
 cd /var/www/localhost/htdocs
-../busybox httpd -f -p 85
+../busybox httpd -f -p 85 &
+BUSYBOX_PID=$!
+# Trick to catch failures: Wait a few seconds for busybox to exit. If it does,
+# there's likely an error, and the kill will fail, which `set -e` will handle.
+sleep 3
+kill -0 $BUSYBOX_PID
+systemd-notify --ready || true
+wait $BUSYBOX_PID
