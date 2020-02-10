@@ -62,6 +62,7 @@ RUN directory-artifact-gen \
     -t raspberrypi0-wifi \
     -t raspberrypi3 \
     -t raspberrypi4 \
+    -t raspberrypi \
     -d /var/www/localhost \
     -o mender-demo-artifact.mender \
     /var/www/localhost \
