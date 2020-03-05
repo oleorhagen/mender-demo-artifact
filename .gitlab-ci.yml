@@ -4,11 +4,11 @@ variables:
   REPO_NAME: github.com/mendersoftware/mender-demo-artifact
   GITHUB_RELEASE_BINARY: mender-demo-artifact
   GITHUB_RELEASE_DEPLOY_REPO: mendersoftware/mender-demo-artifact
-  MENDER_VERSION: '2.2.0b1'
-  MENDER_ARTIFACT_VERSION: '3.3.0b1'
-  INTEGRATION_VERSION: '2.3.0b1'
+  MENDER_VERSION: '2.1.3'
+  MENDER_ARTIFACT_VERSION: '3.2.1'
+  INTEGRATION_VERSION: '2.2.2'
   ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
-  MENDER_DEB_VERSION: '2.2.0b1'
+  MENDER_DEB_VERSION: '2.1.3'
   RASPBIAN_VERSION: '2019-04-08'
   S3_BUCKET_NAME: "mender-demo-artifacts"
 
@@ -24,7 +24,7 @@ include:
 build:	
   stage: build	
   services:	
-    - docker:dind	
+    - docker:19.03.5-dind
   script:	
     - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .	
     # Extract artifact	
