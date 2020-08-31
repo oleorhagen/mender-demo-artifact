@@ -1,4 +1,4 @@
-FROM debian:9
+FROM debian:10
 RUN apt update
 RUN apt install -y build-essential gcc-arm-linux-gnueabi curl unzip
 
