@@ -23,18 +23,18 @@ include:
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-github-status-updates.yml'
 
-build:	
-  stage: build	
-  services:	
+build:
+  stage: build
+  services:
     - docker:19.03.5-dind
-  script:	
-    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .	
-    # Extract artifact	
-    - mkdir output	
-    - docker run --rm -v $PWD/output:/output mender-demo-artifact	
-  artifacts:	
-    paths:	
-      - output/mender-demo-artifact.mender	
+  script:
+    - docker build -t mender-demo-artifact --build-arg MENDER_ARTIFACT_VERSION=$MENDER_ARTIFACT_VERSION --build-arg MENDER_VERSION=$MENDER_VERSION --build-arg ARTIFACT_NAME=$ARTIFACT_NAME .
+    # Extract artifact
+    - mkdir output
+    - docker run --rm -v $PWD/output:/output mender-demo-artifact
+  artifacts:
+    paths:
+      - output/mender-demo-artifact.mender
 
 test:acceptance:
   stage: test
@@ -56,7 +56,7 @@ test:acceptance:
   script:
     - apk add python3 bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
     - cd tests
-    - pip3 install --upgrade -r requirements.txt
+    - pip3 install -r requirements.txt
     - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
 
 publish:s3:
