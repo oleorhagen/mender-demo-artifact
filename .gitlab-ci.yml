@@ -1,5 +1,3 @@
-image: docker:git
-
 variables:
   REPO_NAME: github.com/mendersoftware/mender-demo-artifact
   GITHUB_RELEASE_BINARY: mender-demo-artifact
@@ -25,6 +23,7 @@ include:
 
 build:
   stage: build
+  image: docker:git
   services:
     - docker:19.03.5-dind
   script:
@@ -38,7 +37,7 @@ build:
 
 test:acceptance:
   stage: test
-  image: docker:18-dind
+  image: docker:19.03-dind
   tags:
     - mender-qa-slave
   dependencies:
@@ -46,15 +45,27 @@ test:acceptance:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    - /usr/local/bin/dockerd-entrypoint.sh &
-    - sleep 10
-    - export DOCKER_HOST="unix:///var/run/docker.sock"
+    # DinD setup in mender-qa-slave
+    - unset DOCKER_HOST
+    - unset DOCKER_TLS_VERIFY
+    - unset DOCKER_CERT_PATH
+    # Start dockerd in the background
+    - /usr/local/bin/dockerd &
+    # Wait for dockerd to start
+    - |-
+      MAX_WAIT=30
+      while [ ! -e "/var/run/docker.sock" ] && [ $MAX_WAIT -gt 0 ]; do
+        MAX_WAIT=$(($MAX_WAIT - 1))
+        sleep 1
+      done
+    # Verify that the docker server is up and running
     - docker version
+    # Git submodules
     - apk add git
     - git submodule sync --recursive
     - git submodule update --init --recursive
   script:
-    - apk add python3 bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
+    - apk add python3 py3-pip bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
     - cd tests
     - pip3 install -r requirements.txt
     - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
