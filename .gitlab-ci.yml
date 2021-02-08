@@ -65,7 +65,9 @@ test:acceptance:
     - git submodule sync --recursive
     - git submodule update --init --recursive
   script:
-    - apk add python3 py3-pip bash gcc openssh make openssl-dev libffi-dev libc-dev python3-dev
+    - apk add --update python3 py3-pip bash gcc openssh make openssl-dev
+      libffi-dev libc-dev python3-dev musl-dev rust cargo
+    - pip3 install --upgrade pip
     - cd tests
     - pip3 install -r requirements.txt
     - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
