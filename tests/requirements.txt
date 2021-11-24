@@ -3,4 +3,4 @@ fabric==2.6.0
 requests==2.26.0
 paramiko==2.8.0
 setuptools==59.0.1
-cryptography==35.0.0
+cryptography==36.0.0
