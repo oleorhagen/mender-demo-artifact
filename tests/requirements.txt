@@ -2,5 +2,5 @@ pytest==6.2.5
 fabric==2.6.0
 requests==2.27.1
 paramiko==2.9.2
-setuptools==60.5.0
+setuptools==60.6.0
 cryptography==36.0.1
