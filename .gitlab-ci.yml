@@ -2,11 +2,11 @@ variables:
   REPO_NAME: github.com/mendersoftware/mender-demo-artifact
   GITHUB_RELEASE_BINARY: mender-demo-artifact
   GITHUB_RELEASE_DEPLOY_REPO: mendersoftware/mender-demo-artifact
-  MENDER_VERSION: '3.2.0'
+  MENDER_VERSION: '3.2.1'
   MENDER_ARTIFACT_VERSION: '3.7.0'
-  INTEGRATION_VERSION: '3.2.0'
+  INTEGRATION_VERSION: '3.2.1'
   ARTIFACT_NAME: mender-demo-artifact-$INTEGRATION_VERSION
-  MENDER_DEB_VERSION: '3.2.0'
+  MENDER_DEB_VERSION: '3.2.1'
   S3_BUCKET_NAME: "mender-demo-artifacts"
 
 stages:
