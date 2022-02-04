@@ -69,7 +69,7 @@ test:acceptance:
     - pip3 install --upgrade pip
     - cd tests
     - pip3 install -r requirements.txt
-    - python3 -m pytest -v --mender-version "mender-"$MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
+    - python3 -m pytest -v --mender-version $MENDER_VERSION --mender-deb-version $MENDER_DEB_VERSION
 
 publish:s3:
   stage: publish
